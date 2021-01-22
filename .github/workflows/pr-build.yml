@@ -8,9 +8,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Build
         id: build
         uses: woocommerce/action-build@v2
+
       - name: Upload PR zip
         uses: actions/upload-artifact@v2
         env:
@@ -19,6 +21,7 @@ jobs:
           name: woocommerce.zip
           path: ${{ steps.build.outputs.zip_path }}
           retention-days: 7
+
       - name: Add comment
         uses: actions/github-script@v3
         with:
@@ -30,3 +33,18 @@ jobs:
               repo: context.repo.repo,
               body: ':package: Artifacts ready for [download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})!'
             })
+  
+  e2e-tests:
+    name: Run e2e tests for WooCommerce
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Install npx
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: |
+              npm install -g npx
+              npx wc-e2e docker:up
